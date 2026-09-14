@@ -35,6 +35,8 @@ export default async function AreaPage({ params }) {
 
   const otherAreas = areas.filter((a) => a.slug !== area.slug).slice(0, 6);
   const highlights = (area.highlights || "").split(",").map((h) => h.trim()).filter(Boolean);
+  const contentParagraphs = area.content ? splitIntoParagraphs(area.content) : [];
+  const [firstParagraph, ...restParagraphs] = contentParagraphs;
 
   return (
     <>
@@ -86,15 +88,29 @@ export default async function AreaPage({ params }) {
         </section>
 
         {/* Uitgebreide, unieke tekst per plaats — voor bezoekers én vindbaarheid.
-            Optioneel: als er nog geen lange tekst is ingevuld, toont deze sectie niets. */}
-        {area.content && (
+            Eerste alinea altijd zichtbaar; de rest achter "Lees meer", zodat
+            de pagina niet overweldigend lang oogt bij een eerste bezoek. */}
+        {firstParagraph && (
           <section className="border-t border-line">
             <div className="mx-auto max-w-3xl px-6 py-14">
-              <div className="space-y-4 text-[15.5px] leading-[1.85] text-muted">
-                {splitIntoParagraphs(area.content).map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
+              <p className="text-[15.5px] leading-[1.85] text-muted">{firstParagraph}</p>
+
+              {restParagraphs.length > 0 && (
+                <details className="group mt-5">
+                  <summary className="flex cursor-pointer list-none items-center gap-2.5 text-sm font-semibold text-amber [&::-webkit-details-marker]:hidden">
+                    <span className="relative h-5 w-5 shrink-0 rounded-full border border-amber/50">
+                      <span className="absolute left-1/2 top-1/2 h-[2px] w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-current" />
+                      <span className="absolute left-1/2 top-1/2 h-2.5 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-current transition-transform duration-200 group-open:rotate-90" />
+                    </span>
+                    Lees meer over taxi in {area.name}
+                  </summary>
+                  <div className="mt-5 space-y-4 text-[15.5px] leading-[1.85] text-muted">
+                    {restParagraphs.map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           </section>
         )}
