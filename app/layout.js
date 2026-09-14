@@ -1,5 +1,7 @@
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
+import MobileCallBar from "@/components/MobileCallBar";
+import { getSiteContent } from "@/lib/content";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -21,11 +23,14 @@ export const metadata = {
     "Snel, betrouwbaar taxivervoer in en rond Utrecht. Luchthavenvervoer, zakelijk vervoer en dagelijkse ritten, 24/7 bereikbaar.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const content = await getSiteContent();
+
   return (
     <html lang="nl">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} font-body bg-night text-text`}>
+      <body className={`${spaceGrotesk.variable} ${inter.variable} font-body bg-night text-text pb-20 md:pb-0`}>
         {children}
+        <MobileCallBar phone={content.phone} whatsapp={content.whatsapp_number} />
       </body>
     </html>
   );

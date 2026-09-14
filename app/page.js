@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
 import {
   IconPhone, IconWhatsapp, IconClock, IconShield, IconTag,
-  IconPlane, IconBriefcase, IconCity, IconWheelchair, IconCheck,
+  IconPlane, IconBriefcase, IconCity, IconCheck,
 } from "@/components/Icons";
 
 export const revalidate = 60;
@@ -18,7 +18,8 @@ export default async function HomePage() {
 
       <main>
         {/* Hero */}
-        <section className="mx-auto grid max-w-5xl items-center gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="relative mx-auto grid max-w-5xl items-center gap-12 px-6 py-16 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="pointer-events-none absolute right-0 top-0 -z-10 h-[420px] w-[420px] rounded-full bg-amber/10 blur-[100px]" />
           <div>
             <p className="mb-4 flex items-center gap-2 text-[14.5px] font-semibold text-amber animate-fade-up">
               <span className="h-2 w-2 rounded-full bg-amber animate-pulse2" />
@@ -75,11 +76,10 @@ export default async function HomePage() {
                 Van een vroege vlucht naar Schiphol tot een zakelijke afspraak in de stad — wij regelen het.
               </p>
             </div>
-            <div className="grid border-l border-t border-line sm:grid-cols-2">
-              <Service icon={<IconPlane className="h-11 w-11" />} title="Luchthavenvervoer" text="Op tijd naar Schiphol, Eindhoven of Rotterdam Airport. We houden je vluchttijd in de gaten, ook bij vertragingen." />
-              <Service icon={<IconBriefcase className="h-11 w-11" />} title="Zakelijk vervoer" text="Betrouwbaar vervoer voor klantbezoeken, personeel of stationsritten — desgewenst met factuur voor je bedrijf." />
-              <Service icon={<IconCity className="h-11 w-11" />} title="Dagelijks vervoer" text="Naar het station, een avondje uit, of gewoon boodschappen die te zwaar zijn voor de fiets. Bel en we komen eraan." />
-              <Service icon={<IconWheelchair className="h-11 w-11" />} title="Rolstoeltoegankelijk" text="Aangepast vervoer voor rolstoelgebruikers, rustig en zonder haast, met een chauffeur die weet hoe het moet." />
+            <div className="grid border-l border-t border-line sm:grid-cols-3">
+              <Service slug="luchthavenvervoer" icon={<IconPlane className="h-11 w-11" />} title="Luchthavenvervoer" text="Op tijd naar Schiphol, Eindhoven of Rotterdam Airport. We houden je vluchttijd in de gaten, ook bij vertragingen." />
+              <Service slug="zakelijk-vervoer" icon={<IconBriefcase className="h-11 w-11" />} title="Zakelijk vervoer" text="Betrouwbaar vervoer voor klantbezoeken, personeel of stationsritten — desgewenst met factuur voor je bedrijf." />
+              <Service slug="dagelijks-vervoer" icon={<IconCity className="h-11 w-11" />} title="Dagelijks vervoer" text="Naar het station, een avondje uit, of gewoon boodschappen die te zwaar zijn voor de fiets. Bel en we komen eraan." />
             </div>
           </div>
         </section>
@@ -170,13 +170,14 @@ export default async function HomePage() {
   );
 }
 
-function Service({ icon, title, text }) {
+function Service({ slug, icon, title, text }) {
   return (
-    <div className="border-b border-r border-line p-8">
-      <div className="mb-4 text-amber">{icon}</div>
-      <h3 className="font-display text-lg font-semibold">{title}</h3>
+    <Link href={`/diensten/${slug}`} className="group border-b border-r border-line p-8 transition-colors hover:bg-night-2">
+      <div className="mb-4 text-amber transition-transform duration-200 group-hover:-translate-y-0.5">{icon}</div>
+      <h3 className="font-display text-lg font-semibold group-hover:text-amber">{title}</h3>
       <p className="mt-2.5 text-[15px] text-muted">{text}</p>
-    </div>
+      <span className="mt-3 inline-block text-sm text-amber opacity-0 transition-opacity group-hover:opacity-100">Meer info</span>
+    </Link>
   );
 }
 

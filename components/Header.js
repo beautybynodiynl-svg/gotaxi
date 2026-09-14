@@ -6,7 +6,7 @@ import { IconLogo, IconPhone } from "@/components/Icons";
 import { phoneHref } from "@/lib/content";
 
 const NAV_LINKS = [
-  { href: "/#diensten", label: "Diensten" },
+  { href: "/diensten", label: "Diensten" },
   { href: "/#werkt", label: "Hoe het werkt" },
   { href: "/gebied", label: "Werkgebied" },
   { href: "/contact", label: "Contact" },
@@ -17,7 +17,7 @@ export default function Header({ phone }) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-night/90 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-4">
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight">
           <IconLogo className="h-6 w-6 text-amber" />
           GoTaxi<span className="text-amber">Utrecht</span>
@@ -41,19 +41,29 @@ export default function Header({ phone }) {
           </Link>
         </div>
 
-        <button
-          type="button"
-          aria-label={open ? "Sluit menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center text-text md:hidden"
-        >
-          <span className="relative block h-4 w-5">
-            <span className={`absolute left-0 top-0 h-[2px] w-5 rounded-full bg-current transition-all duration-300 ${open ? "top-[7px] rotate-45" : ""}`} />
-            <span className={`absolute left-0 top-[7px] h-[2px] w-5 rounded-full bg-current transition-opacity duration-200 ${open ? "opacity-0" : "opacity-100"}`} />
-            <span className={`absolute left-0 top-[14px] h-[2px] w-5 rounded-full bg-current transition-all duration-300 ${open ? "top-[7px] -rotate-45" : ""}`} />
-          </span>
-        </button>
+        {/* Mobiel: belknop altijd direct zichtbaar, naast het hamburgermenu */}
+        <div className="flex items-center gap-2 md:hidden">
+          <a
+            href={phoneHref(phone)}
+            aria-label={`Bel ${phone}`}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-amber text-[#171207] shadow-[0_0_0_4px_rgba(246,185,59,0.15)] transition-transform active:scale-95"
+          >
+            <IconPhone className="h-[18px] w-[18px]" />
+          </a>
+          <button
+            type="button"
+            aria-label={open ? "Sluit menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="flex h-10 w-10 items-center justify-center text-text"
+          >
+            <span className="relative block h-4 w-5">
+              <span className={`absolute left-0 top-0 h-[2px] w-5 rounded-full bg-current transition-all duration-300 ${open ? "top-[7px] rotate-45" : ""}`} />
+              <span className={`absolute left-0 top-[7px] h-[2px] w-5 rounded-full bg-current transition-opacity duration-200 ${open ? "opacity-0" : "opacity-100"}`} />
+              <span className={`absolute left-0 top-[14px] h-[2px] w-5 rounded-full bg-current transition-all duration-300 ${open ? "top-[7px] -rotate-45" : ""}`} />
+            </span>
+          </button>
+        </div>
       </div>
 
       <div className={`overflow-hidden border-t border-line bg-night transition-[max-height,opacity] duration-300 ease-out md:hidden ${open ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
