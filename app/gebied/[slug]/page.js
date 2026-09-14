@@ -91,8 +91,8 @@ export default async function AreaPage({ params }) {
           <section className="border-t border-line">
             <div className="mx-auto max-w-3xl px-6 py-14">
               <div className="space-y-4 text-[15.5px] leading-[1.85] text-muted">
-                {area.content.split(/\n{2,}/).map((paragraph, i) => (
-                  <p key={i}>{paragraph.trim()}</p>
+                {splitIntoParagraphs(area.content).map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
                 ))}
               </div>
             </div>
@@ -203,4 +203,33 @@ export default async function AreaPage({ params }) {
       <Footer content={content} areas={areas} />
     </>
   );
+}
+
+// Zet lange tekst om in nette alinea's, ook als de brontekst geen (herkenbare)
+// dubbele regelafbrekingen bevat — bijvoorbeeld door Windows-regeleindes (\r\n)
+// die verloren zijn gegaan bij het kopiëren/plakken.
+function splitIntoParagraphs(text) {
+  const normalized = text.replace(/\r\n/g, "\n").trim();
+
+  let paragraphs = normalized
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  // Geen (of maar 1) alinea gevonden: knip zelf op in stukken van ~3 zinnen.
+  if (paragraphs.length <= 1) {
+    const sentences = normalized.match(/[^.!?]+[.!?]+(\s|$)/g) || [normalized];
+    paragraphs = [];
+    for (let i = 0; i < sentences.length; i += 3) {
+      paragraphs.push(
+        sentences
+          .slice(i, i + 3)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim()
+      );
+    }
+  }
+
+  return paragraphs;
 }
