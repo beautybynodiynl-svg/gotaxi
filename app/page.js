@@ -24,6 +24,29 @@ export default async function HomePage() {
         <section className="relative mx-auto grid max-w-6xl items-start gap-10 overflow-hidden px-6 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div className="pointer-events-none absolute right-0 top-0 -z-10 h-[420px] w-[420px] rounded-full bg-amber/10 blur-[100px]" />
 
+          {/* Subtiele weg-met-bestemming als achtergrond van de hele hero */}
+          <svg
+            className="pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-[0.09]"
+            preserveAspectRatio="none"
+            viewBox="0 0 1200 500"
+            aria-hidden="true"
+          >
+            <path
+              d="M-20 420 C 200 380, 320 300, 260 220 S 420 60, 700 100 S 1050 280, 1220 200"
+              stroke="rgb(var(--color-amber))"
+              strokeWidth="3"
+              strokeDasharray="14 18"
+              fill="none"
+            >
+              <animate attributeName="stroke-dashoffset" from="0" to="-128" dur="7s" repeatCount="indefinite" />
+            </path>
+            <circle cx="1220" cy="200" r="7" fill="rgb(var(--color-amber))" />
+            <circle cx="1220" cy="200" r="14" fill="none" stroke="rgb(var(--color-amber))" strokeWidth="2">
+              <animate attributeName="r" values="8;20;8" dur="2.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.8;0;0.8" dur="2.8s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+
           <div>
             <p className="mb-4 flex items-center gap-2 text-[14.5px] font-semibold text-amber">
               <span className="h-2 w-2 rounded-full bg-amber animate-pulse2" />
@@ -69,6 +92,26 @@ export default async function HomePage() {
               <span className="flex items-center gap-2"><IconClock className="h-4 w-4 text-amber" />24/7 bereikbaar</span>
               <span className="flex items-center gap-2"><IconTag className="h-4 w-4 text-amber" />Vaste prijs vooraf mogelijk</span>
               <span className="flex items-center gap-2"><IconCheck className="h-4 w-4 text-amber" />Betrouwbare chauffeurs</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Sfeerbeeld — de taxi in de stad, ter illustratie van de branding */}
+        <section className="border-t border-line">
+          <div className="mx-auto max-w-6xl px-6 py-14">
+            <div className="relative overflow-hidden rounded-[28px] p-[2px]" style={{ background: "linear-gradient(135deg, #F6B93B, #7A5A17, #F6B93B)" }}>
+              <div className="relative overflow-hidden rounded-[26px]">
+                <img
+                  src="/images/taxi-hero.jpg"
+                  alt="Go Taxi Utrecht auto bij de Domtoren in Utrecht"
+                  className="h-[280px] w-full object-cover sm:h-[380px] lg:h-[460px]"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night via-night/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6 sm:p-8">
+                  <p className="font-display text-xl font-bold text-text sm:text-2xl">Herkenbaar op straat in Utrecht</p>
+                  <p className="mt-1 max-w-sm text-sm text-muted">Dag en nacht onderweg — van de Domtoren tot aan Schiphol.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

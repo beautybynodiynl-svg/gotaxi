@@ -22,6 +22,13 @@ const TITLE = "Taxi Utrecht | 24/7 Taxi & Schipholvervoer | Go Taxi Utrecht";
 const DESCRIPTION =
   "Taxi nodig in Utrecht? Go Taxi Utrecht is 24/7 bereikbaar voor lokale ritten, Schipholvervoer en zakelijke taxi. Bel direct of vraag vooraf je ritprijs aan.";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#10131C",
+};
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: TITLE, template: "%s | Go Taxi Utrecht" },
@@ -34,13 +41,13 @@ export const metadata = {
     siteName: "Go Taxi Utrecht",
     locale: "nl_NL",
     type: "website",
-    images: [{ url: "/images/logo.png", width: 1254, height: 1254, alt: "Go Taxi Utrecht" }],
+    images: [{ url: "/images/logo-dark.png", width: 1254, height: 1254, alt: "Go Taxi Utrecht" }],
   },
   twitter: {
     card: "summary",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/images/logo.png"],
+    images: ["/images/logo-dark.png"],
   },
 };
 
@@ -51,7 +58,7 @@ export default async function RootLayout({ children }) {
     "@context": "https://schema.org",
     "@type": "TaxiService",
     name: "Go Taxi Utrecht",
-    image: `${SITE_URL}/images/logo.png`,
+    image: `${SITE_URL}/images/logo-dark.png`,
     url: SITE_URL,
     telephone: content.phone,
     areaServed: {
@@ -70,6 +77,15 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="nl">
+      <head>
+        {/* Voorkomt een flits van het verkeerde thema: zet de 'light'-class
+            al vóór React hydrateert, op basis van een eerder gemaakte keuze. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('gtu-theme')==='light'){document.documentElement.classList.add('light');}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className={`${spaceGrotesk.variable} ${inter.variable} font-body bg-night text-text pb-20 lg:pb-0`}>
         {children}
         <MobileCallBar phone={content.phone} whatsapp={content.whatsapp_number} />

@@ -2,25 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Dark mode (standaard) — RGB-tripletten zonder rgb(), zodat Tailwind
+     hier zelf een alpha-waarde aan kan toevoegen (bv. bg-amber/10). */
+  --color-night: 16 19 28;        /* #10131C */
+  --color-night-2: 23 27 39;      /* #171B27 */
+  --color-night-3: 30 35 51;      /* #1E2333 */
+  --color-amber: 246 185 59;      /* #F6B93B */
+  --color-amber-deep: 217 147 15; /* #D9930F */
+  --color-text: 244 241 233;      /* #F4F1E9 */
+  --color-muted: 169 175 192;     /* #A9AFC0 */
+  --color-line-base: 244 241 233; /* lijnen worden afgeleid van de tekstkleur */
+}
+
+.light {
+  /* Light mode — warm, niet-fel wit, met dieper goud voor voldoende contrast. */
+  --color-night: 250 250 248;     /* #FAFAF8 */
+  --color-night-2: 255 255 255;   /* #FFFFFF */
+  --color-night-3: 241 241 237;   /* #F1F1ED */
+  --color-amber: 199 129 10;      /* #C7810A — dieper goud, leesbaar op wit */
+  --color-amber-deep: 163 105 8;  /* #A36908 */
+  --color-text: 17 21 30;         /* #11151E */
+  --color-muted: 90 97 112;       /* #5A6170 */
+  --color-line-base: 17 21 30;    /* lijnen afgeleid van de (donkere) tekstkleur */
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
 body {
-  background-color: #10131C;
-  color: #F4F1E9;
+  background-color: rgb(var(--color-night));
+  color: rgb(var(--color-text));
   overflow-x: hidden;
   max-width: 100vw;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background-color: #F6B93B;
-  color: #171207;
+  background-color: rgb(var(--color-amber));
+  color: rgb(var(--color-night));
 }
 
 :focus-visible {
-  outline: 2px solid #F6B93B;
+  outline: 2px solid rgb(var(--color-amber));
   outline-offset: 3px;
 }
 

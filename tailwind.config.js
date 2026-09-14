@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,jsx}",
     "./components/**/*.{js,jsx}",
@@ -8,18 +9,18 @@ module.exports = {
     extend: {
       colors: {
         night: {
-          DEFAULT: "#10131C",
-          2: "#171B27",
-          3: "#1E2333",
+          DEFAULT: "rgb(var(--color-night) / <alpha-value>)",
+          2: "rgb(var(--color-night-2) / <alpha-value>)",
+          3: "rgb(var(--color-night-3) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "#F6B93B",
-          deep: "#D9930F",
+          DEFAULT: "rgb(var(--color-amber) / <alpha-value>)",
+          deep: "rgb(var(--color-amber-deep) / <alpha-value>)",
         },
-        text: "#F4F1E9",
-        muted: "#A9AFC0",
-        line: "rgba(244,241,233,0.12)",
-        "line-strong": "rgba(244,241,233,0.22)",
+        text: "rgb(var(--color-text) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        line: "rgb(var(--color-line-base) / 0.12)",
+        "line-strong": "rgb(var(--color-line-base) / 0.22)",
       },
       fontFamily: {
         display: ["var(--font-space-grotesk)", "sans-serif"],
@@ -41,5 +42,11 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Custom variant zodat we components/afbeeldingen specifiek voor light mode
+    // kunnen tonen/verbergen met bv. className="light:hidden" of "hidden light:block".
+    function ({ addVariant }) {
+      addVariant("light", ".light &");
+    },
+  ],
 };

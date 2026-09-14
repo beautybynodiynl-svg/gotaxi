@@ -18,7 +18,8 @@ export default function Footer({ content, areas = [] }) {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link href="/">
-              <img src="/images/logo.png" alt="Go Taxi Utrecht" className="h-20 w-auto object-contain" />
+              <img src="/images/logo-dark.png" alt="Go Taxi Utrecht" className="h-20 w-auto object-contain light:hidden" />
+              <img src="/images/logo-light.png" alt="Go Taxi Utrecht" className="hidden h-20 w-auto object-contain light:block" />
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted">
               Taxi in en rond Utrecht — dag en nacht bereikbaar.
