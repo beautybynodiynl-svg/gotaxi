@@ -16,8 +16,9 @@ export async function generateMetadata({ params }) {
   const area = await getServiceAreaBySlug(params.slug);
   if (!area) return {};
   return {
-    title: `Taxi ${area.name} — GoTaxiUtrecht | Dag en nacht bereikbaar`,
-    description: `Op zoek naar een taxi in ${area.name}? GoTaxiUtrecht brengt je snel en betrouwbaar naar je bestemming, 24/7 bereikbaar.`,
+    title: `Taxi ${area.name} | Schiphol & Utrecht | Go Taxi Utrecht`,
+    description: `Taxi nodig in ${area.name}? Go Taxi Utrecht is 24/7 bereikbaar voor lokale ritten en Schipholvervoer. Bel direct of vraag vooraf je ritprijs aan.`,
+    alternates: { canonical: `/gebied/${area.slug}` },
   };
 }
 
@@ -44,18 +45,17 @@ export default async function AreaPage({ params }) {
               Taxi in {area.name}
             </p>
             <h1 className="font-display text-4xl font-bold leading-[1.15] sm:text-[44px]">
-              Snel een taxi in {area.name}, dag en nacht
+              Taxi {area.name}
             </h1>
             <p className="mt-5 max-w-md text-lg text-muted">{area.intro}</p>
 
             <div className="mt-9 flex flex-wrap gap-3.5">
-              <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
-                <IconPhone className="h-[18px] w-[18px]" />
-                Bel nu: {content.phone}
+              <a href="/contact" className="rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
+                Vraag ritprijs aan
               </a>
-              <a href={whatsappHref(content.whatsapp_number)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
-                <IconWhatsapp className="h-[18px] w-[18px]" />
-                WhatsApp ons
+              <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
+                <IconPhone className="h-[18px] w-[18px]" />
+                Bel direct
               </a>
             </div>
           </div>
@@ -99,6 +99,43 @@ export default async function AreaPage({ params }) {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        <section className="border-t border-line bg-night-2">
+          <div className="mx-auto max-w-5xl px-6 py-14">
+            <h2 className="font-display text-xl font-semibold">Taxi {area.name} naar Schiphol</h2>
+            <p className="mt-3 max-w-2xl text-[15px] text-muted">
+              Vanuit {area.name} breng je Go Taxi Utrecht rechtstreeks naar Schiphol — geen parkeren, geen overstappen, geen gesjouw met koffers. Voor deze rit kun je vooraf een vaste ritprijs aanvragen, zodat je precies weet waar je aan toe bent.
+            </p>
+          </div>
+        </section>
+
+        <section className="border-t border-line">
+          <div className="mx-auto max-w-5xl px-6 py-14">
+            <h2 className="font-display text-xl font-semibold">Zakelijke taxi {area.name}</h2>
+            <p className="mt-3 max-w-2xl text-[15px] text-muted">
+              Ook voor zakelijke ritten vanuit {area.name} — klantbezoeken, stationsritten of vervoer voor collega's — kun je op Go Taxi Utrecht rekenen. Facturatie is mogelijk voor bedrijven.
+            </p>
+          </div>
+        </section>
+
+        <section className="border-t border-line">
+          <div className="mx-auto max-w-3xl px-6 py-14">
+            <h2 className="font-display text-xl font-semibold">Veelgestelde vragen over taxi {area.name}</h2>
+            <div className="mt-6 divide-y divide-line">
+              {[
+                { q: `Hoe bestel ik een taxi in ${area.name}?`, a: "Bel of app ons, of vraag online je ritprijs aan. We plannen de rit meteen voor je in." },
+                { q: "Kan ik vooraf een prijs krijgen?", a: "Voor veel ritten, waaronder luchthavenritten, kun je vooraf een vaste prijs aanvragen." },
+                { q: `Rijden jullie vanuit ${area.name} naar Schiphol?`, a: "Ja, dagelijks. We halen je op bij je deur en brengen je rechtstreeks naar de luchthaven." },
+                { q: "Kan ik met meerdere personen reizen?", a: "Ja, geef bij je aanvraag door met hoeveel personen en hoeveel bagage je reist." },
+              ].map((f) => (
+                <div key={f.q} className="py-4">
+                  <p className="font-display text-[16px] font-semibold">{f.q}</p>
+                  <p className="mt-1.5 text-[14.5px] text-muted">{f.a}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

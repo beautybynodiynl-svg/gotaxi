@@ -44,7 +44,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-8 flex gap-2 border-b border-line">
-          {["teksten", "werkgebieden", "berichten"].map((t) => (
+          {["teksten", "werkgebieden", "ritprijs-aanvragen", "berichten"].map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -58,6 +58,7 @@ export default function DashboardPage() {
         <div className="mt-8">
           {tab === "teksten" && <ContentEditor />}
           {tab === "werkgebieden" && <AreasEditor />}
+          {tab === "ritprijs-aanvragen" && <QuoteRequestsList />}
           {tab === "berichten" && <MessagesList />}
         </div>
       </div>
@@ -84,8 +85,17 @@ function ContentEditor() {
     });
   }, []);
 
+  const [errorKey, setErrorKey] = useState("");
+
   async function saveField(key) {
-    await supabase.from("site_content").upsert({ key, value: values[key] || "", updated_at: new Date().toISOString() });
+    const { error } = await supabase
+      .from("site_content")
+      .upsert({ key, value: values[key] || "", updated_at: new Date().toISOString() });
+    if (error) {
+      setErrorKey(key);
+      setTimeout(() => setErrorKey(""), 3000);
+      return;
+    }
     setSavedKey(key);
     setTimeout(() => setSavedKey(""), 2000);
   }
@@ -107,6 +117,7 @@ function ContentEditor() {
               Opslaan
             </button>
             <SavedBadge visible={savedKey === field.key} />
+            {errorKey === field.key && <span className="ml-3 text-sm text-red-400">Opslaan mislukt, probeer opnieuw</span>}
           </div>
         </div>
       ))}
@@ -194,6 +205,86 @@ function AreasEditor() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function QuoteRequestsList() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function load() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("quote_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      setError("Kon aanvragen niet laden.");
+    } else {
+      setRequests(data || []);
+      setError("");
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function updateStatus(id, status) {
+    const { error } = await supabase.from("quote_requests").update({ status }).eq("id", id);
+    if (!error) {
+      setRequests((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
+    }
+  }
+
+  if (loading) return <p className="text-muted">Bezig met laden…</p>;
+  if (error) return <p className="text-red-400">{error}</p>;
+  if (requests.length === 0) return <p className="text-muted">Nog geen ritprijs-aanvragen binnengekomen.</p>;
+
+  const STATUS_STYLES = {
+    nieuw: "bg-amber/15 text-amber",
+    bekeken: "bg-blue-400/15 text-blue-300",
+    afgehandeld: "bg-green-400/15 text-green-300",
+  };
+
+  return (
+    <div className="space-y-4">
+      {requests.map((r) => (
+        <div key={r.id} className="rounded-2xl border border-line-strong bg-night-2 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-medium">{r.name} — {r.phone}</p>
+              <p className="mt-1 text-sm text-muted">
+                {r.from_address} → {r.to_address}
+              </p>
+              <p className="text-sm text-muted">
+                {r.ride_date} {r.ride_time} · {r.passengers} {r.passengers === 1 ? "persoon" : "personen"}
+                {r.flight_number && ` · Vlucht ${r.flight_number}`}
+              </p>
+              {r.notes && <p className="mt-1 text-sm text-muted">"{r.notes}"</p>}
+            </div>
+            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_STYLES[r.status] || STATUS_STYLES.nieuw}`}>
+              {r.status}
+            </span>
+          </div>
+          <div className="mt-4 flex gap-2">
+            {["nieuw", "bekeken", "afgehandeld"].map((s) => (
+              <button
+                key={s}
+                onClick={() => updateStatus(r.id, s)}
+                disabled={r.status === s}
+                className="rounded-full border border-line-strong px-3 py-1.5 text-xs capitalize hover:border-amber disabled:opacity-40"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted">{new Date(r.created_at).toLocaleString("nl-NL")}</p>
+        </div>
+      ))}
     </div>
   );
 }

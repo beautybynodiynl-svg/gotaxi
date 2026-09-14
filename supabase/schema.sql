@@ -20,7 +20,8 @@ create table if not exists service_areas (
   created_at timestamptz not null default now()
 );
 
--- 3) Contactformulier-inzendingen
+-- 3) Contactformulier-inzendingen (algemeen, legacy — het ritprijs-formulier
+--    hieronder is de primaire manier waarop aanvragen nu binnenkomen)
 create table if not exists contact_messages (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -31,10 +32,27 @@ create table if not exists contact_messages (
   read boolean not null default false
 );
 
+-- 4) Ritprijs-aanvragen (het hoofdformulier op de homepage en contactpagina)
+create table if not exists quote_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text not null,
+  from_address text not null,
+  to_address text not null,
+  ride_date text,
+  ride_time text,
+  passengers integer not null default 1,
+  flight_number text,
+  notes text,
+  status text not null default 'nieuw', -- nieuw | bekeken | afgehandeld
+  created_at timestamptz not null default now()
+);
+
 -- Row Level Security aanzetten
 alter table site_content enable row level security;
 alter table service_areas enable row level security;
 alter table contact_messages enable row level security;
+alter table quote_requests enable row level security;
 
 -- Publiek mag content en werkgebieden LEZEN (de openbare website)
 create policy "Publiek kan site_content lezen" on site_content
@@ -57,11 +75,22 @@ create policy "Publiek kan contactformulier insturen" on contact_messages
 create policy "Ingelogde gebruikers kunnen berichten lezen" on contact_messages
   for select using (auth.role() = 'authenticated');
 
+-- Ritprijs-aanvragen: publiek mag insturen (via de server-side API-route),
+-- maar alleen ingelogde gebruikers mogen ze lezen of de status bijwerken.
+create policy "Publiek kan ritprijs-aanvragen insturen" on quote_requests
+  for insert with check (true);
+
+create policy "Ingelogde gebruikers kunnen ritprijs-aanvragen lezen" on quote_requests
+  for select using (auth.role() = 'authenticated');
+
+create policy "Ingelogde gebruikers kunnen ritprijs-aanvragen bijwerken" on quote_requests
+  for update using (auth.role() = 'authenticated');
+
 -- Startcontent invullen — LET OP: telefoonnummer/e-mail/KvK zijn placeholders, pas
 -- deze aan via het beheerpaneel (/admin) voordat de site live gaat.
 insert into site_content (key, value) values
   ('hero_title', 'Waar je ook moet zijn, wij staan al klaar.'),
-  ('hero_subtitle', 'GoTaxiUtrecht brengt je snel en zonder gedoe van A naar B — naar Schiphol, naar kantoor, of gewoon naar huis na een avondje stappen. Eén telefoontje of appje, en we staan voor de deur.'),
+  ('hero_subtitle', 'Taxi nodig in Utrecht of omgeving? Bel direct of vraag vooraf eenvoudig je ritprijs aan. Voor lokale ritten, Schiphol, zakelijk vervoer en meer.'),
   ('phone', '06 14 52 95 05'),
   ('whatsapp_number', '31614529505'),
   ('email', 'info@gotaxiutrecht.nl'),

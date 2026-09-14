@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { IconLogo, IconPhone } from "@/components/Icons";
+import { IconPhone } from "@/components/Icons";
 import { phoneHref } from "@/lib/content";
 
 const NAV_LINKS = [
+  { href: "/", label: "Home" },
   { href: "/diensten", label: "Diensten" },
-  { href: "/#werkt", label: "Hoe het werkt" },
-  { href: "/gebied", label: "Werkgebied" },
+  { href: "/diensten/schiphol-taxi", label: "Schiphol" },
+  { href: "/gebied", label: "Gebieden" },
+  { href: "/diensten/zakelijk-vervoer", label: "Zakelijk" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -17,13 +19,21 @@ export default function Header({ phone }) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-night/90 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-4">
-        <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight">
-          <IconLogo className="h-6 w-6 text-amber" />
-          GoTaxi<span className="text-amber">Utrecht</span>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+        <Link href="/" onClick={() => setOpen(false)} className="flex items-center">
+          <img
+            src="/images/logo.png"
+            alt="Go Taxi Utrecht"
+            className="hidden h-14 w-auto object-contain sm:block"
+          />
+          <img
+            src="/images/logo.png"
+            alt="Go Taxi Utrecht"
+            className="h-11 w-auto object-contain sm:hidden"
+          />
         </Link>
 
-        <nav className="hidden items-center gap-7 text-[15px] text-muted md:flex">
+        <nav className="hidden items-center gap-6 text-[15px] text-muted lg:flex">
           {NAV_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="transition-colors hover:text-text">
               {l.label}
@@ -31,22 +41,21 @@ export default function Header({ phone }) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <a href={phoneHref(phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-5 py-2.5 text-sm font-semibold transition-colors hover:border-amber">
+        <div className="hidden items-center gap-3 lg:flex">
+          <a href={phoneHref(phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-4 py-2.5 text-sm font-semibold transition-colors hover:border-amber">
             <IconPhone className="h-4 w-4" />
-            {phone}
+            Bel direct
           </a>
           <Link href="/contact" className="rounded-full bg-amber px-5 py-2.5 text-sm font-semibold text-[#171207] transition-colors hover:bg-amber-deep">
-            Bel direct een taxi
+            Ritprijs aanvragen
           </Link>
         </div>
 
-        {/* Mobiel: belknop altijd direct zichtbaar, naast het hamburgermenu */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <a
             href={phoneHref(phone)}
-            aria-label={`Bel ${phone}`}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-amber text-[#171207] shadow-[0_0_0_4px_rgba(246,185,59,0.15)] transition-transform active:scale-95"
+            aria-label="Bel direct"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-amber text-[#171207]"
           >
             <IconPhone className="h-[18px] w-[18px]" />
           </a>
@@ -66,16 +75,16 @@ export default function Header({ phone }) {
         </div>
       </div>
 
-      <div className={`overflow-hidden border-t border-line bg-night transition-[max-height,opacity] duration-300 ease-out md:hidden ${open ? "max-h-80 opacity-100" : "max-h-0 opacity-0"}`}>
+      <div className={`overflow-hidden border-t border-line bg-night transition-[max-height,opacity] duration-300 ease-out lg:hidden ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
         <nav className="flex flex-col gap-1 px-6 py-4 text-[15px] text-muted">
           {NAV_LINKS.map((l) => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="rounded-lg px-2 py-2.5 hover:bg-night-2 hover:text-text">
               {l.label}
             </Link>
           ))}
-          <a href={phoneHref(phone)} className="mt-2 rounded-full bg-amber px-5 py-2.5 text-center text-sm font-semibold text-[#171207]">
-            Bel nu: {phone}
-          </a>
+          <Link href="/contact" onClick={() => setOpen(false)} className="mt-2 rounded-full bg-amber px-5 py-2.5 text-center text-sm font-semibold text-[#171207]">
+            Ritprijs aanvragen
+          </Link>
         </nav>
       </div>
     </header>

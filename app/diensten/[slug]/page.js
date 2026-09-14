@@ -38,13 +38,12 @@ export default async function ServicePage({ params }) {
           <h1 className="font-display text-4xl font-bold leading-[1.15] sm:text-[44px]">{service.heroTitle}</h1>
           <p className="mt-5 text-lg text-muted">{service.heroSubtitle}</p>
           <div className="mt-9 flex flex-wrap gap-3.5">
-            <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
-              <IconPhone className="h-[18px] w-[18px]" />
-              Bel nu: {content.phone}
+            <a href="/contact" className="rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
+              Vraag ritprijs aan
             </a>
-            <a href={whatsappHref(content.whatsapp_number)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
-              <IconWhatsapp className="h-[18px] w-[18px]" />
-              WhatsApp ons
+            <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
+              <IconPhone className="h-[18px] w-[18px]" />
+              Bel direct
             </a>
           </div>
         </section>
@@ -134,6 +133,21 @@ export default async function ServicePage({ params }) {
       </section>
 
       <Footer content={content} areas={areas} />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: service.faqs.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }),
+        }}
+      />
     </>
   );
 }

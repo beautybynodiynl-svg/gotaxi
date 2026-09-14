@@ -1,13 +1,14 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ContactForm from "./ContactForm";
+import QuoteForm from "@/components/QuoteForm";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
-import { IconPhone, IconWhatsapp, IconClock } from "@/components/Icons";
+import { IconPhone, IconWhatsapp } from "@/components/Icons";
 
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Contact — GoTaxiUtrecht",
+  title: "Ritprijs aanvragen — Go Taxi Utrecht",
+  description: "Vraag eenvoudig je ritprijs aan bij Go Taxi Utrecht, of bel of app ons direct voor een taxi in en rond Utrecht.",
 };
 
 export default async function ContactPage() {
@@ -16,30 +17,29 @@ export default async function ContactPage() {
   return (
     <>
       <Header phone={content.phone} />
-      <main className="mx-auto grid max-w-4xl gap-12 px-6 py-16 sm:grid-cols-2">
-        <div>
-          <p className="mb-3 text-[14.5px] font-semibold text-amber">Contact</p>
-          <h1 className="font-display text-4xl font-bold">Een taxi nodig?</h1>
-          <p className="mt-4 text-muted">Voor de snelste service: bel of app ons direct. Liever een bericht sturen? Gebruik het formulier.</p>
+      <main className="mx-auto max-w-3xl px-6 py-16">
+        <p className="mb-3 text-[14.5px] font-semibold text-amber">Ritprijs aanvragen</p>
+        <h1 className="font-display text-4xl font-bold">Vraag je ritprijs aan</h1>
+        <p className="mt-4 max-w-lg text-muted">
+          Vul je gegevens in en we laten je zo snel mogelijk weten wat je rit kost. Geen account nodig, vrijblijvend.
+        </p>
 
-          <div className="mt-8 space-y-4 text-[15px]">
-            <a href={phoneHref(content.phone)} className="flex items-center gap-3 hover:text-amber">
-              <IconPhone className="h-5 w-5 text-amber" />
-              {content.phone}
-            </a>
-            <a href={whatsappHref(content.whatsapp_number)} className="flex items-center gap-3 hover:text-amber">
-              <IconWhatsapp className="h-5 w-5 text-amber" />
-              WhatsApp
-            </a>
-            <p className="flex items-center gap-3 text-muted">
-              <IconClock className="h-5 w-5 text-amber" />
-              24/7 bereikbaar
-            </p>
-          </div>
+        <div className="mt-10 rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-8">
+          <QuoteForm whatsappNumber={content.whatsapp_number} />
         </div>
 
-        <div className="rounded-2xl border border-line-strong bg-night-2 p-7">
-          <ContactForm />
+        <div className="mt-10 rounded-2xl border border-line-strong p-6 sm:p-8">
+          <p className="font-display text-lg font-semibold">Liever direct contact?</p>
+          <div className="mt-4 flex flex-wrap gap-3.5">
+            <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full bg-amber px-6 py-3 text-sm font-semibold text-[#171207] hover:bg-amber-deep">
+              <IconPhone className="h-4 w-4" />
+              Direct contact met Go Taxi Utrecht
+            </a>
+            <a href={whatsappHref(content.whatsapp_number)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 text-sm font-semibold hover:border-amber">
+              <IconWhatsapp className="h-4 w-4" />
+              Stuur je ritgegevens via WhatsApp
+            </a>
+          </div>
         </div>
       </main>
       <Footer content={content} areas={areas} />

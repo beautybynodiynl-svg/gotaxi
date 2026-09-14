@@ -17,20 +17,66 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_URL = "https://gotaxiutrecht.nl";
+const TITLE = "Taxi Utrecht | 24/7 Taxi & Schipholvervoer | Go Taxi Utrecht";
+const DESCRIPTION =
+  "Taxi nodig in Utrecht? Go Taxi Utrecht is 24/7 bereikbaar voor lokale ritten, Schipholvervoer en zakelijke taxi. Bel direct of vraag vooraf je ritprijs aan.";
+
 export const metadata = {
-  title: "GoTaxiUtrecht — Taxi in en rond Utrecht, dag en nacht",
-  description:
-    "Snel, betrouwbaar taxivervoer in en rond Utrecht. Luchthavenvervoer, zakelijk vervoer en dagelijkse ritten, 24/7 bereikbaar.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: "%s | Go Taxi Utrecht" },
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: "Go Taxi Utrecht",
+    locale: "nl_NL",
+    type: "website",
+    images: [{ url: "/images/logo.png", width: 1254, height: 1254, alt: "Go Taxi Utrecht" }],
+  },
+  twitter: {
+    card: "summary",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/images/logo.png"],
+  },
 };
 
 export default async function RootLayout({ children }) {
   const content = await getSiteContent();
 
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TaxiService",
+    name: "Go Taxi Utrecht",
+    image: `${SITE_URL}/images/logo.png`,
+    url: SITE_URL,
+    telephone: content.phone,
+    areaServed: {
+      "@type": "City",
+      name: "Utrecht",
+    },
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+      ],
+      opens: "00:00",
+      closes: "23:59",
+    },
+  };
+
   return (
     <html lang="nl">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} font-body bg-night text-text pb-20 md:pb-0`}>
+      <body className={`${spaceGrotesk.variable} ${inter.variable} font-body bg-night text-text pb-20 lg:pb-0`}>
         {children}
         <MobileCallBar phone={content.phone} whatsapp={content.whatsapp_number} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
       </body>
     </html>
   );
