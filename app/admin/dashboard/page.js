@@ -1,0 +1,229 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+
+const CONTENT_FIELDS = [
+  { key: "hero_title", label: "Titel op de homepage", type: "text" },
+  { key: "hero_subtitle", label: "Ondertitel op de homepage", type: "textarea" },
+  { key: "phone", label: "Telefoonnummer", type: "text" },
+  { key: "whatsapp_number", label: "WhatsApp-nummer (alleen cijfers, met landcode, bv. 31612345678)", type: "text" },
+  { key: "email", label: "E-mailadres", type: "text" },
+  { key: "kvk_nummer", label: "KvK-nummer", type: "text" },
+  { key: "vergunning_nummer", label: "Vergunningnummer (taxivergunning)", type: "text" },
+];
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+  const [tab, setTab] = useState("teksten");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) router.replace("/admin");
+      else setChecking(false);
+    });
+  }, [router]);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.replace("/admin");
+  }
+
+  if (checking) return <p className="p-8 text-muted">Bezig met laden…</p>;
+
+  return (
+    <main className="min-h-screen bg-night">
+      <div className="mx-auto max-w-4xl px-6 py-10">
+        <div className="flex items-center justify-between">
+          <h1 className="font-display text-3xl font-bold">Beheerpaneel</h1>
+          <button onClick={handleLogout} className="rounded-full border border-line-strong px-4 py-2 text-sm hover:border-amber">
+            Uitloggen
+          </button>
+        </div>
+
+        <div className="mt-8 flex gap-2 border-b border-line">
+          {["teksten", "werkgebieden", "berichten"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-2 text-sm capitalize ${tab === t ? "border-b-2 border-amber text-text" : "text-muted hover:text-text"}`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8">
+          {tab === "teksten" && <ContentEditor />}
+          {tab === "werkgebieden" && <AreasEditor />}
+          {tab === "berichten" && <MessagesList />}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function SavedBadge({ visible }) {
+  if (!visible) return null;
+  return <span className="ml-3 text-sm text-amber">Opgeslagen ✓</span>;
+}
+
+function ContentEditor() {
+  const [values, setValues] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [savedKey, setSavedKey] = useState("");
+
+  useEffect(() => {
+    supabase.from("site_content").select("key, value").then(({ data }) => {
+      const map = {};
+      (data || []).forEach((row) => (map[row.key] = row.value));
+      setValues(map);
+      setLoading(false);
+    });
+  }, []);
+
+  async function saveField(key) {
+    await supabase.from("site_content").upsert({ key, value: values[key] || "", updated_at: new Date().toISOString() });
+    setSavedKey(key);
+    setTimeout(() => setSavedKey(""), 2000);
+  }
+
+  if (loading) return <p className="text-muted">Bezig met laden…</p>;
+
+  return (
+    <div className="space-y-8">
+      {CONTENT_FIELDS.map((field) => (
+        <div key={field.key} className="rounded-2xl border border-line-strong bg-night-2 p-6">
+          <label className="mb-2 block text-sm font-medium text-muted">{field.label}</label>
+          {field.type === "textarea" ? (
+            <textarea rows={4} value={values[field.key] || ""} onChange={(e) => setValues((v) => ({ ...v, [field.key]: e.target.value }))} className="w-full rounded-lg border border-line-strong bg-night px-4 py-3 text-[15px] focus:border-amber" />
+          ) : (
+            <input type="text" value={values[field.key] || ""} onChange={(e) => setValues((v) => ({ ...v, [field.key]: e.target.value }))} className="w-full rounded-lg border border-line-strong bg-night px-4 py-2.5 text-[15px] focus:border-amber" />
+          )}
+          <div className="mt-3 flex items-center">
+            <button onClick={() => saveField(field.key)} className="rounded-full bg-amber px-5 py-2 text-sm font-semibold text-[#171207] hover:bg-amber-deep">
+              Opslaan
+            </button>
+            <SavedBadge visible={savedKey === field.key} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const EMPTY_AREA = { slug: "", name: "", intro: "", travel_time: "", highlights: "", sort_order: 0 };
+
+function slugify(text) {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function AreasEditor() {
+  const [areas, setAreas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newArea, setNewArea] = useState(EMPTY_AREA);
+
+  async function load() {
+    const { data } = await supabase.from("service_areas").select("*").order("sort_order");
+    setAreas(data || []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  function updateLocal(id, field, value) {
+    setAreas((rows) => rows.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+  }
+
+  async function saveRow(row) {
+    await supabase.from("service_areas").update({
+      slug: row.slug, name: row.name, intro: row.intro,
+      travel_time: row.travel_time, highlights: row.highlights, sort_order: row.sort_order,
+    }).eq("id", row.id);
+  }
+
+  async function deleteRow(id) {
+    if (!confirm("Dit werkgebied verwijderen? De landingspagina verdwijnt dan ook.")) return;
+    await supabase.from("service_areas").delete().eq("id", id);
+    load();
+  }
+
+  async function addArea() {
+    if (!newArea.name) return;
+    const slug = newArea.slug || slugify(newArea.name);
+    await supabase.from("service_areas").insert({ ...newArea, slug, sort_order: Number(newArea.sort_order) || 0 });
+    setNewArea(EMPTY_AREA);
+    load();
+  }
+
+  if (loading) return <p className="text-muted">Bezig met laden…</p>;
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-line-strong bg-night-2 p-6">
+        <h2 className="font-display text-lg font-semibold">Nieuw werkgebied toevoegen</h2>
+        <p className="mt-1 text-sm text-muted">Elk werkgebied krijgt automatisch een eigen landingspagina op /gebied/&lt;plaatsnaam&gt;.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <input placeholder="Plaatsnaam (bv. Driebergen)" value={newArea.name} onChange={(e) => setNewArea((v) => ({ ...v, name: e.target.value }))} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+          <input placeholder="URL-slug (optioneel, wordt automatisch gemaakt)" value={newArea.slug} onChange={(e) => setNewArea((v) => ({ ...v, slug: e.target.value }))} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+          <input placeholder="Reistijd (bv. 20 minuten naar Utrecht Centraal)" value={newArea.travel_time} onChange={(e) => setNewArea((v) => ({ ...v, travel_time: e.target.value }))} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+          <input placeholder="Bekende plekken, komma-gescheiden" value={newArea.highlights} onChange={(e) => setNewArea((v) => ({ ...v, highlights: e.target.value }))} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+          <textarea placeholder="Korte, unieke introductietekst voor deze plaats" value={newArea.intro} onChange={(e) => setNewArea((v) => ({ ...v, intro: e.target.value }))} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm sm:col-span-2" rows={3} />
+        </div>
+        <button onClick={addArea} className="mt-4 rounded-full bg-amber px-5 py-2 text-sm font-semibold text-[#171207] hover:bg-amber-deep">
+          Toevoegen
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {areas.map((row) => (
+          <div key={row.id} className="rounded-2xl border border-line-strong bg-night-2 p-5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input value={row.name} onChange={(e) => updateLocal(row.id, "name", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+              <input value={row.slug} onChange={(e) => updateLocal(row.id, "slug", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+              <input value={row.travel_time || ""} onChange={(e) => updateLocal(row.id, "travel_time", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+              <input value={row.highlights || ""} onChange={(e) => updateLocal(row.id, "highlights", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
+              <textarea value={row.intro || ""} onChange={(e) => updateLocal(row.id, "intro", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm sm:col-span-2" rows={3} />
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <button onClick={() => saveRow(row)} className="rounded-full bg-amber px-4 py-1.5 text-sm font-semibold text-[#171207] hover:bg-amber-deep">Opslaan</button>
+              <button onClick={() => deleteRow(row.id)} className="rounded-full border border-red-400/50 px-4 py-1.5 text-sm text-red-400 hover:bg-red-400/10">Verwijderen</button>
+              <a href={`/gebied/${row.slug}`} target="_blank" rel="noreferrer" className="text-sm text-muted hover:text-amber">Bekijk pagina →</a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MessagesList() {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.from("contact_messages").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+      setMessages(data || []);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <p className="text-muted">Bezig met laden…</p>;
+  if (messages.length === 0) return <p className="text-muted">Nog geen berichten binnengekomen.</p>;
+
+  return (
+    <div className="space-y-4">
+      {messages.map((m) => (
+        <div key={m.id} className="rounded-2xl border border-line-strong bg-night-2 p-5">
+          <div className="flex items-baseline justify-between">
+            <p className="font-medium">{m.name}</p>
+            <p className="text-xs text-muted">{new Date(m.created_at).toLocaleString("nl-NL")}</p>
+          </div>
+          <p className="text-sm text-amber">{m.phone}{m.email ? ` · ${m.email}` : ""}</p>
+          {m.message && <p className="mt-2 text-sm text-muted">{m.message}</p>}
+        </div>
+      ))}
+    </div>
+  );
+}

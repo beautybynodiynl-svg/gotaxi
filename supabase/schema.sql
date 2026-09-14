@@ -1,0 +1,105 @@
+-- GoTaxiUtrecht — Supabase schema
+-- Plak dit volledige bestand in het Supabase dashboard onder "SQL Editor" > "New query" en klik Run.
+
+-- 1) Site-content: kleine stukjes tekst die overal op de site staan
+create table if not exists site_content (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+-- 2) Werkgebieden: één rij per plaats, gebruikt voor de losse landingspagina's op /gebied/[slug]
+create table if not exists service_areas (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,        -- bv. 'nieuwegein', gebruikt in de url
+  name text not null,               -- bv. 'Nieuwegein'
+  intro text not null default '',   -- korte, unieke tekst over deze plaats
+  travel_time text,                 -- bv. '15 minuten naar Utrecht Centraal'
+  highlights text,                  -- bv. bekende plekken/wijken, komma-gescheiden
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 3) Contactformulier-inzendingen
+create table if not exists contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text,
+  email text,
+  message text,
+  created_at timestamptz not null default now(),
+  read boolean not null default false
+);
+
+-- Row Level Security aanzetten
+alter table site_content enable row level security;
+alter table service_areas enable row level security;
+alter table contact_messages enable row level security;
+
+-- Publiek mag content en werkgebieden LEZEN (de openbare website)
+create policy "Publiek kan site_content lezen" on site_content
+  for select using (true);
+
+create policy "Publiek kan service_areas lezen" on service_areas
+  for select using (true);
+
+-- Alleen ingelogde gebruikers mogen content AANPASSEN (via /admin)
+create policy "Ingelogde gebruikers kunnen site_content aanpassen" on site_content
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+create policy "Ingelogde gebruikers kunnen service_areas aanpassen" on service_areas
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+-- Iedereen mag het contactformulier INSTUREN, maar niet lezen
+create policy "Publiek kan contactformulier insturen" on contact_messages
+  for insert with check (true);
+
+create policy "Ingelogde gebruikers kunnen berichten lezen" on contact_messages
+  for select using (auth.role() = 'authenticated');
+
+-- Startcontent invullen — LET OP: telefoonnummer/e-mail/KvK zijn placeholders, pas
+-- deze aan via het beheerpaneel (/admin) voordat de site live gaat.
+insert into site_content (key, value) values
+  ('hero_title', 'Waar je ook moet zijn, wij staan al klaar.'),
+  ('hero_subtitle', 'GoTaxiUtrecht brengt je snel en zonder gedoe van A naar B — naar Schiphol, naar kantoor, of gewoon naar huis na een avondje stappen. Eén telefoontje of appje, en we staan voor de deur.'),
+  ('phone', '06 14 52 95 05'),
+  ('whatsapp_number', '31614529505'),
+  ('email', 'info@gotaxiutrecht.nl'),
+  ('kvk_nummer', 'nog invullen'),
+  ('vergunning_nummer', 'nog invullen')
+on conflict (key) do nothing;
+
+-- Startwerkgebieden invullen (regio Utrecht) — teksten mogen aangepast/uitgebreid
+-- worden via het beheerpaneel.
+insert into service_areas (slug, name, intro, travel_time, highlights, sort_order) values
+  ('utrecht-centrum', 'Utrecht Centrum',
+    'Van Utrecht Centraal, de Neude of de Oudegracht tot aan je voordeur: GoTaxiUtrecht is binnen enkele minuten bij je in het centrum van Utrecht.',
+    'Direct in de stad', 'Utrecht Centraal, Oudegracht, Neude, Dom', 1),
+  ('nieuwegein', 'Nieuwegein',
+    'Woon of werk je in Nieuwegein? Wij rijden dagelijks tussen Nieuwegein en Utrecht, en verzorgen ook ritten naar Schiphol vanuit de hele regio Lekboulevard en Batau.',
+    '15 minuten naar Utrecht Centraal', 'City Plaza, Lekboulevard, Batau', 2),
+  ('zeist', 'Zeist',
+    'Van de groene lanen van Zeist tot aan Utrecht of de snelweg: een betrouwbare taxi voor zakelijke ritten en dagelijkse trips.',
+    '20 minuten naar Utrecht Centraal', 'Slot Zeist, Austerlitz, Zeist-West', 3),
+  ('de-bilt', 'De Bilt',
+    'GoTaxiUtrecht verzorgt vervoer in De Bilt en Bilthoven, van de Soestdijkseweg tot aan het centrum van Utrecht.',
+    '15 minuten naar Utrecht Centraal', 'Bilthoven, Soestdijkseweg, De Holle Bilt', 4),
+  ('houten', 'Houten',
+    'Vanuit Houten snel naar Utrecht Centraal, Schiphol of elders in de regio — dag en nacht bereikbaar.',
+    '15 minuten naar Utrecht Centraal', 'Houten Centrum, Castellum, De Meerpaal', 5),
+  ('maarssen', 'Maarssen',
+    'Taxivervoer in Maarssen en Maarssenbroek, met snelle verbindingen naar Utrecht en de A2.',
+    '15 minuten naar Utrecht Centraal', 'Maarssenbroek, Doorslag, Vecht', 6),
+  ('ijsselstein', 'IJsselstein',
+    'Van het historische centrum van IJsselstein tot aan Utrecht of Nieuwegein: wij staan klaar.',
+    '20 minuten naar Utrecht Centraal', 'Binnenstad, Zenderpark, Achterveld', 7),
+  ('bunnik', 'Bunnik',
+    'Taxivervoer in Bunnik en Odijk, ideaal voor ritten naar Utrecht Centraal of station Driebergen-Zeist.',
+    '15 minuten naar Utrecht Centraal', 'Odijk, Werkhoven, Fort bij Vechten', 8),
+  ('vianen', 'Vianen',
+    'Vanuit Vianen snel de A2 op richting Utrecht, of een rustige rit naar huis — GoTaxiUtrecht rijdt ook hier.',
+    '25 minuten naar Utrecht Centraal', 'Lekdijk, Hoefslag, Vianen-Oost', 9),
+  ('woerden', 'Woerden',
+    'Taxivervoer tussen Woerden en Utrecht, met oog voor treinaansluitingen op station Woerden.',
+    '25 minuten naar Utrecht Centraal', 'Woerden Centrum, Snel en Polanen, Molenvliet', 10)
+on conflict (slug) do nothing;
