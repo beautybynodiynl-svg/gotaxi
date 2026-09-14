@@ -10,17 +10,19 @@ export function IconLogo(props) {
 
 export function IconPhone(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M6 3c1 0 2.5 2.5 2.5 3.5S7 8 7 9c0 2 4 6 6 6 1 0 1.5-1.5 2.5-1.5S19 15.5 19 16.5c0 1.5-1.5 3-3 3-4.5 0-11-6.5-11-11 0-1.5 1.5-3 1-5.5Z" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M21.5 16.6v2.8a1.9 1.9 0 0 1-2.07 1.9 18.8 18.8 0 0 1-8.2-2.92 18.5 18.5 0 0 1-5.7-5.7A18.8 18.8 0 0 1 2.6 4.47 1.9 1.9 0 0 1 4.49 2.4h2.8a1.9 1.9 0 0 1 1.9 1.63c.12.9.34 1.79.66 2.64a1.9 1.9 0 0 1-.43 2L8.2 9.9a15.2 15.2 0 0 0 5.7 5.7l1.23-1.22a1.9 1.9 0 0 1 2-.43c.85.32 1.74.54 2.64.66a1.9 1.9 0 0 1 1.63 1.93Z" />
     </svg>
   );
 }
 
 export function IconWhatsapp(props) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M20 12a8 8 0 1 1-3.6-6.7" strokeLinecap="round" />
-      <path d="M20 4l-6.5 9-3-2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 20l1.2-3.6A8 8 0 1 1 8.6 19L4 20Z" />
+      <circle cx="9" cy="11" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="11" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="11" r="0.9" fill="currentColor" stroke="none" />
     </svg>
   );
 }
