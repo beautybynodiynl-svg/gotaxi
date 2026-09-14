@@ -150,7 +150,7 @@ function AreasEditor() {
 
   async function saveRow(row) {
     await supabase.from("service_areas").update({
-      slug: row.slug, name: row.name, intro: row.intro,
+      slug: row.slug, name: row.name, intro: row.intro, content: row.content,
       travel_time: row.travel_time, highlights: row.highlights, sort_order: row.sort_order,
     }).eq("id", row.id);
   }
@@ -196,7 +196,14 @@ function AreasEditor() {
               <input value={row.slug} onChange={(e) => updateLocal(row.id, "slug", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
               <input value={row.travel_time || ""} onChange={(e) => updateLocal(row.id, "travel_time", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
               <input value={row.highlights || ""} onChange={(e) => updateLocal(row.id, "highlights", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm" />
-              <textarea value={row.intro || ""} onChange={(e) => updateLocal(row.id, "intro", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm sm:col-span-2" rows={3} />
+              <textarea value={row.intro || ""} onChange={(e) => updateLocal(row.id, "intro", e.target.value)} className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm sm:col-span-2" rows={3} placeholder="Korte introductietekst (hero)" />
+              <textarea
+                value={row.content || ""}
+                onChange={(e) => updateLocal(row.id, "content", e.target.value)}
+                className="rounded-lg border border-line-strong bg-night px-3 py-2 text-sm sm:col-span-2"
+                rows={10}
+                placeholder="Uitgebreide tekst (500-800 woorden). Laat een lege regel tussen alinea's."
+              />
             </div>
             <div className="mt-3 flex items-center gap-3">
               <button onClick={() => saveRow(row)} className="rounded-full bg-amber px-4 py-1.5 text-sm font-semibold text-[#171207] hover:bg-amber-deep">Opslaan</button>

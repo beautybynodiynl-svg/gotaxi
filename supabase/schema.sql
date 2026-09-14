@@ -16,6 +16,7 @@ create table if not exists service_areas (
   intro text not null default '',   -- korte, unieke tekst over deze plaats
   travel_time text,                 -- bv. '15 minuten naar Utrecht Centraal'
   highlights text,                  -- bv. bekende plekken/wijken, komma-gescheiden
+  content text,                     -- uitgebreide, unieke tekst (500-800 woorden), alinea's gescheiden door een lege regel
   sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
@@ -140,7 +141,7 @@ create policy "Ingelogde gebruikers kunnen reserveringen bijwerken" on bookings
 -- deze aan via het beheerpaneel (/admin) voordat de site live gaat.
 insert into site_content (key, value) values
   ('hero_title', 'Waar je ook moet zijn, wij staan al klaar.'),
-  ('hero_subtitle', 'Taxi nodig in Utrecht of omgeving? Bel direct of vraag vooraf eenvoudig je ritprijs aan. Voor lokale ritten, Schiphol, zakelijk vervoer en meer.'),
+  ('hero_subtitle', 'Vul je vertrekadres en bestemming in en bekijk direct je geschatte vaste ritprijs. Of bel ons als je meteen een taxi nodig hebt.'),
   ('phone', '06 14 52 95 05'),
   ('whatsapp_number', '31614529505'),
   ('email', 'info@gotaxiutrecht.nl'),

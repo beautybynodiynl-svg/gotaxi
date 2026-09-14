@@ -99,17 +99,20 @@ export default async function HomePage() {
         {/* Sfeerbeeld — de taxi in de stad, ter illustratie van de branding */}
         <section className="border-t border-line">
           <div className="mx-auto max-w-6xl px-6 py-14">
-            <div className="relative overflow-hidden rounded-[28px] p-[2px]" style={{ background: "linear-gradient(135deg, #F6B93B, #7A5A17, #F6B93B)" }}>
+            <div className="relative overflow-hidden rounded-[28px] p-[2px]" style={{ background: "linear-gradient(135deg, rgb(var(--color-amber)), rgb(var(--color-amber-deep)), rgb(var(--color-amber)))" }}>
               <div className="relative overflow-hidden rounded-[26px]">
                 <img
                   src="/images/taxi-hero.jpg"
                   alt="Go Taxi Utrecht auto bij de Domtoren in Utrecht"
                   className="h-[280px] w-full object-cover sm:h-[380px] lg:h-[460px]"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night via-night/10 to-transparent" />
+                {/* Deze overlay + tekst staan altijd op de foto zelf, dus blijven
+                    bewust donker/wit, ongeacht of de site in licht of donker
+                    thema staat — anders wordt het onderschrift onleesbaar. */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6 sm:p-8">
-                  <p className="font-display text-xl font-bold text-text sm:text-2xl">Herkenbaar op straat in Utrecht</p>
-                  <p className="mt-1 max-w-sm text-sm text-muted">Dag en nacht onderweg — van de Domtoren tot aan Schiphol.</p>
+                  <p className="font-display text-xl font-bold text-white sm:text-2xl">Herkenbaar op straat in Utrecht</p>
+                  <p className="mt-1 max-w-sm text-sm text-white/75">Dag en nacht onderweg — van de Domtoren tot aan Schiphol.</p>
                 </div>
               </div>
             </div>
@@ -209,10 +212,10 @@ export default async function HomePage() {
               <div>
                 <h2 className="font-display text-2xl font-semibold">Vooraf weten waar je aan toe bent</h2>
                 <p className="mt-3.5 text-[15.5px] text-muted">
-                  Voor luchthavenritten en veel langere ritten kun je vooraf een vaste prijs aanvragen. Stuur je vertrekadres en bestemming door en we laten je weten wat de rit kost. Voor reguliere taxiritten kan de taxameter worden gebruikt.
+                  Voor veel ritten kun je vooraf een vaste prijs aanvragen. Zo weet je vóór vertrek waar je aan toe bent.
                 </p>
                 <a href="#ritprijs" className="mt-6 inline-block rounded-full bg-amber px-6 py-3 text-sm font-semibold text-[#171207] hover:bg-amber-deep">
-                  Vraag ritprijs aan
+                  Bereken ritprijs
                 </a>
               </div>
               <ul className="space-y-0">

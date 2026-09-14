@@ -85,6 +85,20 @@ export default async function AreaPage({ params }) {
           </div>
         </section>
 
+        {/* Uitgebreide, unieke tekst per plaats — voor bezoekers én vindbaarheid.
+            Optioneel: als er nog geen lange tekst is ingevuld, toont deze sectie niets. */}
+        {area.content && (
+          <section className="border-t border-line">
+            <div className="mx-auto max-w-3xl px-6 py-14">
+              <div className="space-y-4 text-[15.5px] leading-[1.85] text-muted">
+                {area.content.split(/\n{2,}/).map((paragraph, i) => (
+                  <p key={i}>{paragraph.trim()}</p>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="border-t border-line">
           <div className="mx-auto max-w-2xl px-6 py-10">
             <div className="rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-7">

@@ -78,8 +78,6 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="nl">
       <head>
-        {/* Voorkomt een flits van het verkeerde thema: zet de 'light'-class
-            al vóór React hydrateert, op basis van een eerder gemaakte keuze. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `try{if(localStorage.getItem('gtu-theme')==='light'){document.documentElement.classList.add('light');}}catch(e){}`,
