@@ -43,8 +43,8 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div className="mt-8 flex gap-2 border-b border-line">
-          {["teksten", "werkgebieden", "ritprijs-aanvragen", "berichten"].map((t) => (
+        <div className="mt-8 flex flex-wrap gap-2 border-b border-line">
+          {["teksten", "werkgebieden", "ritprijzen", "reserveringen", "berichten"].map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -58,7 +58,8 @@ export default function DashboardPage() {
         <div className="mt-8">
           {tab === "teksten" && <ContentEditor />}
           {tab === "werkgebieden" && <AreasEditor />}
-          {tab === "ritprijs-aanvragen" && <QuoteRequestsList />}
+          {tab === "ritprijzen" && <PricingEditor />}
+          {tab === "reserveringen" && <BookingsList />}
           {tab === "berichten" && <MessagesList />}
         </div>
       </div>
@@ -209,21 +210,20 @@ function AreasEditor() {
   );
 }
 
-function QuoteRequestsList() {
-  const [requests, setRequests] = useState([]);
+function BookingsList() {
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   async function load() {
     setLoading(true);
     const { data, error } = await supabase
-      .from("quote_requests")
+      .from("bookings")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) {
-      setError("Kon aanvragen niet laden.");
-    } else {
-      setRequests(data || []);
+    if (error) setError("Kon reserveringen niet laden.");
+    else {
+      setBookings(data || []);
       setError("");
     }
     setLoading(false);
@@ -234,15 +234,13 @@ function QuoteRequestsList() {
   }, []);
 
   async function updateStatus(id, status) {
-    const { error } = await supabase.from("quote_requests").update({ status }).eq("id", id);
-    if (!error) {
-      setRequests((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
-    }
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    if (!error) setBookings((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
   }
 
   if (loading) return <p className="text-muted">Bezig met laden…</p>;
   if (error) return <p className="text-red-400">{error}</p>;
-  if (requests.length === 0) return <p className="text-muted">Nog geen ritprijs-aanvragen binnengekomen.</p>;
+  if (bookings.length === 0) return <p className="text-muted">Nog geen reserveringen binnengekomen.</p>;
 
   const STATUS_STYLES = {
     nieuw: "bg-amber/15 text-amber",
@@ -252,39 +250,173 @@ function QuoteRequestsList() {
 
   return (
     <div className="space-y-4">
-      {requests.map((r) => (
-        <div key={r.id} className="rounded-2xl border border-line-strong bg-night-2 p-5">
+      {bookings.map((b) => (
+        <div key={b.id} className="rounded-2xl border border-line-strong bg-night-2 p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="font-medium">{r.name} — {r.phone}</p>
-              <p className="mt-1 text-sm text-muted">
-                {r.from_address} → {r.to_address}
-              </p>
+              <p className="font-medium">{b.name} — {b.phone}</p>
+              <p className="mt-1 text-sm text-muted">{b.origin_label} → {b.destination_label}</p>
               <p className="text-sm text-muted">
-                {r.ride_date} {r.ride_time} · {r.passengers} {r.passengers === 1 ? "persoon" : "personen"}
-                {r.flight_number && ` · Vlucht ${r.flight_number}`}
+                {b.ride_date} {b.ride_time} · {b.passengers} {b.passengers === 1 ? "persoon" : "personen"}
+                {b.return_trip && " · retour"}
               </p>
-              {r.notes && <p className="mt-1 text-sm text-muted">"{r.notes}"</p>}
+              {b.calculated_fare != null && (
+                <p className="mt-1 font-display text-lg font-semibold text-amber">
+                  €{b.calculated_fare},- <span className="text-xs font-normal text-muted">({b.route_km} km · {b.pricing_type})</span>
+                </p>
+              )}
+              {b.notes && <p className="mt-1 text-sm text-muted">"{b.notes}"</p>}
             </div>
-            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_STYLES[r.status] || STATUS_STYLES.nieuw}`}>
-              {r.status}
+            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_STYLES[b.status] || STATUS_STYLES.nieuw}`}>
+              {b.status}
             </span>
           </div>
           <div className="mt-4 flex gap-2">
             {["nieuw", "bekeken", "afgehandeld"].map((s) => (
               <button
                 key={s}
-                onClick={() => updateStatus(r.id, s)}
-                disabled={r.status === s}
+                onClick={() => updateStatus(b.id, s)}
+                disabled={b.status === s}
                 className="rounded-full border border-line-strong px-3 py-1.5 text-xs capitalize hover:border-amber disabled:opacity-40"
               >
                 {s}
               </button>
             ))}
           </div>
-          <p className="mt-3 text-xs text-muted">{new Date(r.created_at).toLocaleString("nl-NL")}</p>
+          <p className="mt-3 text-xs text-muted">{new Date(b.created_at).toLocaleString("nl-NL")}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function NumberField({ label, value, onChange }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs text-muted">{label}</span>
+      <input
+        type="number"
+        step="0.01"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        className="w-full rounded-lg border border-line-strong bg-night px-3 py-2 text-sm"
+      />
+    </label>
+  );
+}
+
+function PricingEditor() {
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState(""); // "" | "saved" | "error"
+
+  useEffect(() => {
+    supabase
+      .from("pricing_config")
+      .select("config")
+      .eq("id", "default")
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data?.config) setConfig(data.config);
+        setLoading(false);
+      });
+  }, []);
+
+  function updateStandard(field, value) {
+    setConfig((c) => ({ ...c, standard: { ...c.standard, [field]: value } }));
+  }
+  function updateAirport(field, value) {
+    setConfig((c) => ({
+      ...c,
+      airports: { ...c.airports, schiphol: { ...c.airports.schiphol, [field]: value } },
+    }));
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    const { error } = await supabase
+      .from("pricing_config")
+      .upsert({ id: "default", config, updated_at: new Date().toISOString() });
+    setSaving(false);
+    setStatus(error ? "error" : "saved");
+    setTimeout(() => setStatus(""), 3000);
+  }
+
+  if (loading) return <p className="text-muted">Bezig met laden…</p>;
+  if (!config) return <p className="text-red-400">Kon prijsconfiguratie niet laden.</p>;
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="rounded-2xl border border-line-strong bg-night-2 p-6">
+        <h2 className="font-display text-lg font-semibold">Standaard ritten</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <NumberField label="Starttarief (€)" value={config.standard.startFee} onChange={(v) => updateStandard("startFee", v)} />
+          <NumberField label="Per kilometer (€)" value={config.standard.pricePerKm} onChange={(v) => updateStandard("pricePerKm", v)} />
+          <NumberField label="Per minuut (€)" value={config.standard.pricePerMinute} onChange={(v) => updateStandard("pricePerMinute", v)} />
+          <NumberField label="Minimum ritprijs (€)" value={config.standard.minimumFare} onChange={(v) => updateStandard("minimumFare", v)} />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-line-strong bg-night-2 p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-semibold">Schiphol</h2>
+          <label className="flex items-center gap-2 text-sm text-muted">
+            <input type="checkbox" checked={config.airports.schiphol.enabled} onChange={(e) => updateAirport("enabled", e.target.checked)} className="h-4 w-4 accent-amber" />
+            Actief
+          </label>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <NumberField label="Basistarief (€)" value={config.airports.schiphol.baseFee} onChange={(v) => updateAirport("baseFee", v)} />
+          <NumberField label="Per kilometer (€)" value={config.airports.schiphol.pricePerKm} onChange={(v) => updateAirport("pricePerKm", v)} />
+          <NumberField label="Minimum ritprijs (€)" value={config.airports.schiphol.minimumFare} onChange={(v) => updateAirport("minimumFare", v)} />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-line-strong bg-night-2 p-6">
+        <h2 className="font-display text-lg font-semibold">Automatische offertes</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <NumberField
+            label="Maximale afstand (km)"
+            value={config.maxAutoQuoteDistanceKm}
+            onChange={(v) => setConfig((c) => ({ ...c, maxAutoQuoteDistanceKm: v }))}
+          />
+          <label className="flex items-center gap-2 pt-6 text-sm text-muted">
+            <input
+              type="checkbox"
+              checked={config.requireManualConfirmation}
+              onChange={(e) => setConfig((c) => ({ ...c, requireManualConfirmation: e.target.checked }))}
+              className="h-4 w-4 accent-amber"
+            />
+            Handmatige bevestiging na aanvraag
+          </label>
+        </div>
+        <label className="mt-4 flex items-center gap-2 text-sm text-muted">
+          <input
+            type="checkbox"
+            checked={config.calculatorEnabled}
+            onChange={(e) => setConfig((c) => ({ ...c, calculatorEnabled: e.target.checked }))}
+            className="h-4 w-4 accent-amber"
+          />
+          Ritprijscalculator actief op de site
+        </label>
+      </div>
+
+      <div className="rounded-2xl border border-line-strong bg-night-2 p-6 text-sm text-muted">
+        <p className="font-medium text-text">Ter informatie — landelijke maximumtarieven taxameter (2026)</p>
+        <p className="mt-1">Starttarief € 4,31 · Kilometertarief € 3,17 · Tijdtarief € 0,52/min</p>
+        <p className="mt-2 text-xs">
+          Dit zijn de wettelijke maximumtarieven, niet je eigen commerciële online tarief hierboven. Gebruik dit alleen als referentie.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button onClick={handleSave} disabled={saving} className="rounded-full bg-amber px-6 py-2.5 text-sm font-semibold text-[#171207] hover:bg-amber-deep disabled:opacity-60">
+          {saving ? "Bezig…" : "Tarieven opslaan"}
+        </button>
+        {status === "saved" && <span className="text-sm text-amber">Opgeslagen ✓</span>}
+        {status === "error" && <span className="text-sm text-red-400">Opslaan mislukt, probeer opnieuw</span>}
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteContent, getServiceAreas, getServiceAreaBySlug, phoneHref, whatsappHref } from "@/lib/content";
 import { IconPhone, IconWhatsapp, IconClock, IconShield, IconPin, IconCheck } from "@/components/Icons";
+import RidePriceCalculator from "@/components/RidePriceCalculator";
 
 export const revalidate = 60;
 
@@ -80,6 +81,18 @@ export default async function AreaPage({ params }) {
                 </li>
               )}
             </ul>
+          </div>
+        </section>
+
+        <section className="border-t border-line">
+          <div className="mx-auto max-w-2xl px-6 py-10">
+            <div className="rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-7">
+              <h2 className="font-display text-lg font-semibold">Bereken je ritprijs vanuit {area.name}</h2>
+              <p className="mt-1 text-sm text-muted">Geen account nodig. Vrijblijvend.</p>
+              <div className="mt-5">
+                <RidePriceCalculator presetOriginQuery={area.name} whatsappNumber={content.whatsapp_number} />
+              </div>
+            </div>
           </div>
         </section>
 

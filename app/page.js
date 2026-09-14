@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import QuoteForm from "@/components/QuoteForm";
+import RidePriceCalculator from "@/components/RidePriceCalculator";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
 import { SERVICES } from "@/lib/services";
 import {
@@ -52,10 +52,10 @@ export default async function HomePage() {
 
           {/* 2. Ritprijs-formulier, direct zichtbaar boven de vouw */}
           <div id="ritprijs" className="scroll-mt-24 rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-7">
-            <h2 className="font-display text-lg font-semibold">Vraag je ritprijs aan</h2>
+            <h2 className="font-display text-lg font-semibold">Bereken je ritprijs</h2>
             <p className="mt-1 text-sm text-muted">Geen account nodig. Vrijblijvend.</p>
             <div className="mt-5">
-              <QuoteForm whatsappNumber={content.whatsapp_number} compact />
+              <RidePriceCalculator whatsappNumber={content.whatsapp_number} />
             </div>
           </div>
         </section>

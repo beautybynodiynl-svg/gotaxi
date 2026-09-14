@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import QuoteForm from "@/components/QuoteForm";
+import RidePriceCalculator from "@/components/RidePriceCalculator";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
 import { IconPhone, IconWhatsapp } from "@/components/Icons";
 
@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 export const metadata = {
   title: "Ritprijs aanvragen — Go Taxi Utrecht",
-  description: "Vraag eenvoudig je ritprijs aan bij Go Taxi Utrecht, of bel of app ons direct voor een taxi in en rond Utrecht.",
+  description: "Bereken direct je ritprijs bij Go Taxi Utrecht, of bel of app ons voor een taxi in en rond Utrecht.",
 };
 
 export default async function ContactPage() {
@@ -19,13 +19,13 @@ export default async function ContactPage() {
       <Header phone={content.phone} />
       <main className="mx-auto max-w-3xl px-6 py-16">
         <p className="mb-3 text-[14.5px] font-semibold text-amber">Ritprijs aanvragen</p>
-        <h1 className="font-display text-4xl font-bold">Vraag je ritprijs aan</h1>
+        <h1 className="font-display text-4xl font-bold">Bereken je ritprijs</h1>
         <p className="mt-4 max-w-lg text-muted">
-          Vul je gegevens in en we laten je zo snel mogelijk weten wat je rit kost. Geen account nodig, vrijblijvend.
+          Vul je van- en naar-adres in en bekijk direct een geschatte vaste ritprijs. Geen account nodig, vrijblijvend.
         </p>
 
         <div className="mt-10 rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-8">
-          <QuoteForm whatsappNumber={content.whatsapp_number} />
+          <RidePriceCalculator whatsappNumber={content.whatsapp_number} />
         </div>
 
         <div className="mt-10 rounded-2xl border border-line-strong p-6 sm:p-8">

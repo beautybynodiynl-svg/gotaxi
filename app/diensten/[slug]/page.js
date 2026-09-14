@@ -5,6 +5,9 @@ import Footer from "@/components/Footer";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
 import { SERVICES, getService } from "@/lib/services";
 import { IconPhone, IconWhatsapp, IconCheck } from "@/components/Icons";
+import RidePriceCalculator from "@/components/RidePriceCalculator";
+
+const SCHIPHOL_PRESET = { placeName: "Schiphol Airport", lon: 4.7639, lat: 52.3086, iata: "AMS" };
 
 export const revalidate = 60;
 
@@ -35,18 +38,36 @@ export default async function ServicePage({ params }) {
       <main>
         <section className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
           <p className="mb-3 text-[14.5px] font-semibold text-amber">Dienst</p>
-          <h1 className="font-display text-4xl font-bold leading-[1.15] sm:text-[44px]">{service.heroTitle}</h1>
-          <p className="mt-5 text-lg text-muted">{service.heroSubtitle}</p>
-          <div className="mt-9 flex flex-wrap gap-3.5">
-            <a href="/contact" className="rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
-              Vraag ritprijs aan
-            </a>
-            <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
-              <IconPhone className="h-[18px] w-[18px]" />
-              Bel direct
-            </a>
-          </div>
+          <h1 className="font-display text-4xl font-bold leading-[1.15] sm:text-[44px]">
+            {service.slug === "schiphol-taxi" ? "Wat kost een taxi naar Schiphol?" : service.heroTitle}
+          </h1>
+          <p className="mt-5 text-lg text-muted">
+            {service.slug === "schiphol-taxi"
+              ? "Vul je vertrekadres in en bekijk direct de geschatte vaste ritprijs."
+              : service.heroSubtitle}
+          </p>
+          {service.slug !== "schiphol-taxi" && (
+            <div className="mt-9 flex flex-wrap gap-3.5">
+              <a href="/contact" className="rounded-full bg-amber px-6 py-3.5 text-[15px] font-semibold text-[#171207] hover:bg-amber-deep">
+                Vraag ritprijs aan
+              </a>
+              <a href={phoneHref(content.phone)} className="flex items-center gap-2 rounded-full border border-line-strong px-6 py-3.5 text-[15px] font-semibold hover:border-amber">
+                <IconPhone className="h-[18px] w-[18px]" />
+                Bel direct
+              </a>
+            </div>
+          )}
         </section>
+
+        {service.slug === "schiphol-taxi" && (
+          <section className="border-t border-line">
+            <div className="mx-auto max-w-2xl px-6 py-10">
+              <div className="rounded-2xl border border-line-strong bg-night-2 p-6 sm:p-7">
+                <RidePriceCalculator presetDestination={SCHIPHOL_PRESET} whatsappNumber={content.whatsapp_number} />
+              </div>
+            </div>
+          </section>
+        )}
 
         <section className="border-t border-line">
           <div className="mx-auto max-w-3xl px-6 py-14">

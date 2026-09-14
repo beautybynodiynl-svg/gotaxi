@@ -32,27 +32,10 @@ create table if not exists contact_messages (
   read boolean not null default false
 );
 
--- 4) Ritprijs-aanvragen (het hoofdformulier op de homepage en contactpagina)
-create table if not exists quote_requests (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  phone text not null,
-  from_address text not null,
-  to_address text not null,
-  ride_date text,
-  ride_time text,
-  passengers integer not null default 1,
-  flight_number text,
-  notes text,
-  status text not null default 'nieuw', -- nieuw | bekeken | afgehandeld
-  created_at timestamptz not null default now()
-);
-
 -- Row Level Security aanzetten
 alter table site_content enable row level security;
 alter table service_areas enable row level security;
 alter table contact_messages enable row level security;
-alter table quote_requests enable row level security;
 
 -- Publiek mag content en werkgebieden LEZEN (de openbare website)
 create policy "Publiek kan site_content lezen" on site_content
@@ -75,15 +58,82 @@ create policy "Publiek kan contactformulier insturen" on contact_messages
 create policy "Ingelogde gebruikers kunnen berichten lezen" on contact_messages
   for select using (auth.role() = 'authenticated');
 
--- Ritprijs-aanvragen: publiek mag insturen (via de server-side API-route),
--- maar alleen ingelogde gebruikers mogen ze lezen of de status bijwerken.
-create policy "Publiek kan ritprijs-aanvragen insturen" on quote_requests
+-- 5) Prijsconfiguratie voor de ritprijscalculator. Eén rij (id = 'default')
+--    met de volledige config als JSON — dat is bewust, zodat alle tarieven
+--    samen op één plek staan (single source of truth) in plaats van
+--    verspreid over losse kolommen.
+create table if not exists pricing_config (
+  id text primary key default 'default',
+  config jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table pricing_config enable row level security;
+
+create policy "Publiek kan pricing_config lezen" on pricing_config
+  for select using (true);
+
+create policy "Ingelogde gebruikers kunnen pricing_config aanpassen" on pricing_config
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+insert into pricing_config (id, config) values (
+  'default',
+  '{
+    "standard": { "startFee": 4.00, "pricePerKm": 2.40, "pricePerMinute": 0.35, "minimumFare": 15.00 },
+    "airports": {
+      "schiphol":  { "enabled": true,  "baseFee": 20.00, "pricePerKm": 1.50, "minimumFare": 65.00 },
+      "rotterdam": { "enabled": false, "baseFee": 0,     "pricePerKm": 0,    "minimumFare": 0 },
+      "eindhoven": { "enabled": false, "baseFee": 0,     "pricePerKm": 0,    "minimumFare": 0 }
+    },
+    "roundingMethod": "round",
+    "maxAutoQuoteDistanceKm": 150,
+    "requireManualConfirmation": true,
+    "calculatorEnabled": true,
+    "surcharges": {
+      "night":      { "enabled": false, "from": "00:00", "to": "06:00", "amount": 0 },
+      "extraStop":  { "enabled": false, "amount": 0 },
+      "childSeat":  { "enabled": false, "amount": 0 }
+    }
+  }'::jsonb
+) on conflict (id) do nothing;
+
+-- 6) Reserveringen vanuit de ritprijscalculator. De prijs (calculated_fare)
+--    wordt vastgelegd zoals die op het moment van boeken gold — wijzigen de
+--    tarieven later, dan verandert de prijs van bestaande boekingen NIET.
+create table if not exists bookings (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text not null,
+  email text,
+  origin_label text not null,
+  origin_lon double precision,
+  origin_lat double precision,
+  destination_label text not null,
+  destination_lon double precision,
+  destination_lat double precision,
+  ride_date text,
+  ride_time text,
+  passengers integer not null default 1,
+  luggage integer,
+  return_trip boolean not null default false,
+  notes text,
+  route_km numeric,
+  route_minutes numeric,
+  calculated_fare numeric,
+  pricing_type text, -- standard | airport | manual
+  status text not null default 'nieuw', -- nieuw | bekeken | afgehandeld
+  created_at timestamptz not null default now()
+);
+
+alter table bookings enable row level security;
+
+create policy "Publiek kan reserveringen insturen" on bookings
   for insert with check (true);
 
-create policy "Ingelogde gebruikers kunnen ritprijs-aanvragen lezen" on quote_requests
+create policy "Ingelogde gebruikers kunnen reserveringen lezen" on bookings
   for select using (auth.role() = 'authenticated');
 
-create policy "Ingelogde gebruikers kunnen ritprijs-aanvragen bijwerken" on quote_requests
+create policy "Ingelogde gebruikers kunnen reserveringen bijwerken" on bookings
   for update using (auth.role() = 'authenticated');
 
 -- Startcontent invullen — LET OP: telefoonnummer/e-mail/KvK zijn placeholders, pas
