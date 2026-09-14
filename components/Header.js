@@ -18,18 +18,35 @@ export default function Header({ phone }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-night/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+    <header className="sticky top-0 z-30 overflow-hidden border-b border-line bg-night/90 backdrop-blur">
+      {/* Subtiele weg-animatie op de achtergrond, puur decoratief */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.14]"
+        preserveAspectRatio="none"
+        viewBox="0 0 1200 96"
+        aria-hidden="true"
+      >
+        <path d="M0 60 C 250 20, 500 85, 750 45 S 1100 15, 1200 40" stroke="#F6B93B" strokeWidth="2" strokeDasharray="10 14" fill="none">
+          <animate attributeName="stroke-dashoffset" from="0" to="-96" dur="6s" repeatCount="indefinite" />
+        </path>
+        <circle cx="1150" cy="34" r="5" fill="#F6B93B" />
+        <circle cx="1150" cy="34" r="10" fill="none" stroke="#F6B93B" strokeWidth="1.5">
+          <animate attributeName="r" values="6;14;6" dur="2.5s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.8;0;0.8" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-2">
         <Link href="/" onClick={() => setOpen(false)} className="flex items-center">
           <img
             src="/images/logo.png"
             alt="Go Taxi Utrecht"
-            className="hidden h-14 w-auto object-contain sm:block"
+            className="hidden h-24 w-auto object-contain sm:block"
           />
           <img
             src="/images/logo.png"
             alt="Go Taxi Utrecht"
-            className="h-11 w-auto object-contain sm:hidden"
+            className="h-16 w-auto object-contain sm:hidden"
           />
         </Link>
 

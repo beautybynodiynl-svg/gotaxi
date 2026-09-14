@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { getSiteContent, getServiceAreas, getServiceAreaBySlug, phoneHref, whatsappHref } from "@/lib/content";
 import { IconPhone, IconWhatsapp, IconClock, IconShield, IconPin, IconCheck } from "@/components/Icons";
 import RidePriceCalculator from "@/components/RidePriceCalculator";
+import FaqAccordion from "@/components/FaqAccordion";
 
 export const revalidate = 60;
 
@@ -136,18 +137,15 @@ export default async function AreaPage({ params }) {
         <section className="border-t border-line">
           <div className="mx-auto max-w-3xl px-6 py-14">
             <h2 className="font-display text-xl font-semibold">Veelgestelde vragen over taxi {area.name}</h2>
-            <div className="mt-6 divide-y divide-line">
-              {[
-                { q: `Hoe bestel ik een taxi in ${area.name}?`, a: "Bel of app ons, of vraag online je ritprijs aan. We plannen de rit meteen voor je in." },
-                { q: "Kan ik vooraf een prijs krijgen?", a: "Voor veel ritten, waaronder luchthavenritten, kun je vooraf een vaste prijs aanvragen." },
-                { q: `Rijden jullie vanuit ${area.name} naar Schiphol?`, a: "Ja, dagelijks. We halen je op bij je deur en brengen je rechtstreeks naar de luchthaven." },
-                { q: "Kan ik met meerdere personen reizen?", a: "Ja, geef bij je aanvraag door met hoeveel personen en hoeveel bagage je reist." },
-              ].map((f) => (
-                <div key={f.q} className="py-4">
-                  <p className="font-display text-[16px] font-semibold">{f.q}</p>
-                  <p className="mt-1.5 text-[14.5px] text-muted">{f.a}</p>
-                </div>
-              ))}
+            <div className="mt-6">
+              <FaqAccordion
+                items={[
+                  { q: `Hoe bestel ik een taxi in ${area.name}?`, a: "Bel of app ons, of vraag online je ritprijs aan. We plannen de rit meteen voor je in." },
+                  { q: "Kan ik vooraf een prijs krijgen?", a: "Voor veel ritten, waaronder luchthavenritten, kun je vooraf een vaste prijs aanvragen." },
+                  { q: `Rijden jullie vanuit ${area.name} naar Schiphol?`, a: "Ja, dagelijks. We halen je op bij je deur en brengen je rechtstreeks naar de luchthaven." },
+                  { q: "Kan ik met meerdere personen reizen?", a: "Ja, geef bij je aanvraag door met hoeveel personen en hoeveel bagage je reist." },
+                ]}
+              />
             </div>
           </div>
         </section>

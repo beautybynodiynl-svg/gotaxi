@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FaqAccordion from "@/components/FaqAccordion";
 import RidePriceCalculator from "@/components/RidePriceCalculator";
 import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/content";
 import { SERVICES } from "@/lib/services";
 import {
   IconPhone, IconClock, IconShield, IconTag, IconCheck,
-  IconPlane, IconBriefcase, IconCity,
+  IconPlane, IconBriefcase, IconCity, IconPin, IconCar,
 } from "@/components/Icons";
 
 export const revalidate = 60;
@@ -20,7 +21,7 @@ export default async function HomePage() {
 
       <main>
         {/* 1. Hero + directe CTA's */}
-        <section className="relative mx-auto grid max-w-6xl items-start gap-10 px-6 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+        <section className="relative mx-auto grid max-w-6xl items-start gap-10 overflow-hidden px-6 py-12 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           <div className="pointer-events-none absolute right-0 top-0 -z-10 h-[420px] w-[420px] rounded-full bg-amber/10 blur-[100px]" />
 
           <div>
@@ -127,12 +128,12 @@ export default async function HomePage() {
           <div className="mx-auto max-w-6xl px-6 py-16">
             <h2 className="font-display text-2xl font-bold sm:text-3xl">Waarom kiezen voor Go Taxi Utrecht?</h2>
             <div className="mt-9 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              <Why title="24/7 bereikbaar" text="Ook vroeg in de ochtend of laat in de avond." />
-              <Why title="Duidelijke prijs" text="Voor veel ritten kun je vooraf een vaste prijs afspreken." />
-              <Why title="Lokale chauffeur" text="Wij kennen Utrecht en omgeving." />
-              <Why title="Schipholvervoer" text="Rechtstreeks naar de luchthaven zonder parkeer- of overstapstress." />
-              <Why title="Comfortabel vervoer" text="Nette voertuigen en comfortabel reizen." />
-              <Why title="Direct contact" text="Geen ingewikkelde klantenservice. Gewoon bellen of WhatsAppen." />
+              <Why icon={<IconClock className="h-6 w-6" />} title="24/7 bereikbaar" text="Ook vroeg in de ochtend of laat in de avond." />
+              <Why icon={<IconTag className="h-6 w-6" />} title="Duidelijke prijs" text="Voor veel ritten kun je vooraf een vaste prijs afspreken." />
+              <Why icon={<IconPin className="h-6 w-6" />} title="Lokale chauffeur" text="Wij kennen Utrecht en omgeving." />
+              <Why icon={<IconPlane className="h-6 w-6" />} title="Schipholvervoer" text="Rechtstreeks naar de luchthaven zonder parkeer- of overstapstress." />
+              <Why icon={<IconCar className="h-6 w-6" />} title="Comfortabel vervoer" text="Nette voertuigen en comfortabel reizen." />
+              <Why icon={<IconPhone className="h-6 w-6" />} title="Direct contact" text="Geen ingewikkelde klantenservice. Gewoon bellen of WhatsAppen." />
             </div>
           </div>
         </section>
@@ -187,13 +188,8 @@ export default async function HomePage() {
         <section className="border-t border-line">
           <div className="mx-auto max-w-3xl px-6 py-16">
             <h2 className="font-display text-2xl font-bold sm:text-3xl">Veelgestelde vragen</h2>
-            <div className="mt-8 divide-y divide-line">
-              {HOME_FAQ.map((f) => (
-                <div key={f.q} className="py-5">
-                  <p className="font-display text-[17px] font-semibold">{f.q}</p>
-                  <p className="mt-2 text-[15px] text-muted">{f.a}</p>
-                </div>
-              ))}
+            <div className="mt-8">
+              <FaqAccordion items={HOME_FAQ} />
             </div>
           </div>
         </section>
@@ -254,9 +250,12 @@ function ServiceCard({ slug, icon, title, text, cta }) {
   );
 }
 
-function Why({ title, text }) {
+function Why({ icon, title, text }) {
   return (
     <div>
+      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-night-2 text-amber ring-1 ring-line-strong">
+        {icon}
+      </div>
       <h3 className="font-display text-lg font-semibold">{title}</h3>
       <p className="mt-1.5 text-[15px] text-muted">{text}</p>
     </div>

@@ -91,6 +91,18 @@ export function IconWheelchair(props) {
   );
 }
 
+export function IconCar(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 16V11l2-5h12l2 5v5" />
+      <path d="M4 16a1.5 1.5 0 0 0 1.5 1.5h1A1.5 1.5 0 0 0 8 16m8 0a1.5 1.5 0 0 0 1.5 1.5h1A1.5 1.5 0 0 0 20 16" />
+      <path d="M4 16h16" />
+      <circle cx="7.5" cy="16" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="16.5" cy="16" r="1.2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function IconCheck(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>

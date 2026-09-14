@@ -6,6 +6,7 @@ import { getSiteContent, getServiceAreas, phoneHref, whatsappHref } from "@/lib/
 import { SERVICES, getService } from "@/lib/services";
 import { IconPhone, IconWhatsapp, IconCheck } from "@/components/Icons";
 import RidePriceCalculator from "@/components/RidePriceCalculator";
+import FaqAccordion from "@/components/FaqAccordion";
 
 const SCHIPHOL_PRESET = { placeName: "Schiphol Airport", lon: 4.7639, lat: 52.3086, iata: "AMS" };
 
@@ -106,13 +107,8 @@ export default async function ServicePage({ params }) {
         <section className="border-t border-line">
           <div className="mx-auto max-w-3xl px-6 py-14">
             <h2 className="font-display text-2xl font-semibold">Veelgestelde vragen</h2>
-            <div className="mt-6 divide-y divide-line">
-              {service.faqs.map((f) => (
-                <div key={f.q} className="py-5">
-                  <p className="font-display text-[17px] font-semibold">{f.q}</p>
-                  <p className="mt-2 text-[15px] text-muted">{f.a}</p>
-                </div>
-              ))}
+            <div className="mt-6">
+              <FaqAccordion items={service.faqs} />
             </div>
           </div>
         </section>
